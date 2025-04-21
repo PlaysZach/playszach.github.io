@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background: transparent;
+      }
+      iframe {
+        width: 100vw;
+        height: 100vh;
+        border: none;
+      }
+    </style>
+  </head>
+  <body>
+    <iframe id="chatFrame" src="https://chat.truffle.vip/browser-source/PlaysZach/scene-1"></iframe>
+
+    <script>
+      const observer = new MutationObserver(() => {
+        const messages = document.querySelectorAll('[class*=chat-message], [class*=message]');
+        messages.forEach(msg => {
+          const text = msg.innerText || "";
+          if (text.trim().startsWith('!')) {
+            msg.style.display = 'none';
+          }
+        });
+      });
+
+      const initObserver = () => {
+        const iframe = document.getElementById('chatFrame');
+        const chatDoc = iframe.contentDocument || iframe.contentWindow.document;
+        const target = chatDoc.body;
+        if (!target) return;
+
+        observer.observe(target, {
+          childList: true,
+          subtree: true
+        });
+      };
+
+      document.getElementById('chatFrame').addEventListener("load", () => {
+        setTimeout(initObserver, 1000); // wait a second to make sure it's loaded
+      });
+    </script>
+  </body>
+</html>
