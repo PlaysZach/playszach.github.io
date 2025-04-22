@@ -1,0 +1,46 @@
+.yt-chat-box {
+    font-family: "Roboto", Arial, sans-serif;
+    font-size: 13px;
+    max-height: 500px;
+    overflow-y: auto;
+    padding: 10px;
+    color: #000;
+  }
+  
+  .yt-chat-message {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 10px;
+    transition: background 0.2s;
+  }
+  
+  .yt-chat-message:hover {
+    background-color: #f9f9f9;
+  }
+  
+  .yt-chat-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    margin-right: 10px;
+    flex-shrink: 0;
+  }
+  
+  .yt-chat-content {
+    display: flex;
+    flex-direction: column;
+    word-break: break-word;
+    max-width: calc(100% - 42px);
+  }
+  
+  .yt-chat-author {
+    font-weight: bold;
+    color: #ffd500;
+    margin-bottom: 2px;
+  }
+  
+  .yt-chat-text {
+    color: #000;
+    line-height: 1.4;
+  }
+  
