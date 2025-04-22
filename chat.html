@@ -1,129 +1,151 @@
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8" />
-      <title>YouTube Style Chat</title>
-      <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
-    
-      <style>
-        body {
-          margin: 0;
-          padding: 0;
-          font-family: "Roboto", Arial, sans-serif;
-        }
-    
-        #chat-box {
-          font-size: 13px;
-          max-height: 500px;
-          overflow-y: auto;
-          padding: 10px;
-          background-color: #fff;
-          color: #000;
-        }
-    
-        .yt-chat-message {
-          display: flex;
-          align-items: flex-start;
-          margin-bottom: 10px;
-          padding: 4px 0;
-        }
-    
-        .yt-chat-message:hover {
-          background-color: #f9f9f9;
-        }
-    
-        .yt-chat-avatar {
-          width: 32px;
-          height: 32px;
-          border-radius: 50%;
-          margin-right: 10px;
-          flex-shrink: 0;
-        }
-    
-        .yt-chat-content {
-          display: flex;
-          flex-direction: row;
-          align-items: center;
-          flex-wrap: wrap;
-        }
-    
-        .yt-chat-author {
-          font-weight: bold;
-          color: #ffee00;
-          margin-bottom: 5px;
-        }
-    
-        .yt-chat-text {
-          line-height: 1.4;
-          color: #000;
-        }
-      </style>
-    </head>
-    <body>
-    
-      <div id="chat-box"></div>
-    
-      <script>
-        const API_KEY = 'AIzaSyATsY24GhSlGiypVb-O6EpgBxi4NhDC8zo';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>PlaysZach's Chat</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
 
-        const CHANNEL_ID = 'UC5DNw4_nTttXpsNR3r0AeJw';
-
-        getLiveChatIdFromChannel(CHANNEL_ID).then(liveChatId => {
-             if (liveChatId) {
-               startChat(liveChatId);
-                 } else {
-                         document.getElementById('chat-box').innerHTML = "<i>No live stream currently active.</i>";
-                         }
-                              });
-
-        function startChat(LIVE_CHAT_ID) {
-            let nextPageToken = '';
-            const seenMessages = new Set();
-    
-        async function fetchChat() {
-          const url = new URL('https://www.googleapis.com/youtube/v3/liveChat/messages');
-          url.searchParams.set('liveChatId', LIVE_CHAT_ID);
-          url.searchParams.set('part', 'snippet,authorDetails');
-          url.searchParams.set('key', API_KEY);
-          if (nextPageToken) url.searchParams.set('pageToken', nextPageToken);
-    
-          const response = await fetch(url.toString());
-          const data = await response.json();
-    
-          nextPageToken = data.nextPageToken;
-    
-          const chatBox = document.getElementById('chat-box');
-    
-          if (data.items) {
-            data.items.forEach(msg => {
-              if (seenMessages.has(msg.id)) return;
-              seenMessages.add(msg.id);
-    
-              const author = msg.authorDetails.displayName;
-              const text = msg.snippet.displayMessage;
-              const profileImage = msg.authorDetails.profileImageUrl;
-    
-              const el = document.createElement('div');
-              el.className = 'yt-chat-message';
-    
-              el.innerHTML = `
-                <img class="yt-chat-avatar" src="${profileImage}" alt="${author}">
-                <div class="yt-chat-content">
-                  <span class="yt-chat-author">${author}</span>
-                  <span class="yt-chat-text">${text}</span>
-                </div>
-              `;
-    
-              chatBox.appendChild(el);
-              chatBox.scrollTop = chatBox.scrollHeight;
-            });
-          }
-    
-          setTimeout(fetchChat, 3000);
-        }
-    
-        fetchChat();
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Roboto", Arial, sans-serif;
     }
-      </script>
-    </body>
-    </html>
+
+    #chat-box {
+      font-size: 13px;
+      max-height: 500px;
+      overflow-y: auto;
+      padding: 10px;
+      background-color: #fff;
+      color: #000;
+    }
+
+    .yt-chat-message {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 10px;
+      padding: 4px 0;
+    }
+
+    .yt-chat-message:hover {
+      background-color: #f9f9f9;
+    }
+
+    .yt-chat-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+
+    .yt-chat-content {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      flex-wrap: wrap;
+      max-width: calc(100% - 42px);
+      word-break: break-word;
+    }
+
+    .yt-chat-author {
+      font-weight: bold;
+      color: #ffee00;
+      margin-right: 5px;
+    }
+
+    .yt-chat-text {
+      line-height: 1.4;
+      color: #000;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="chat-box">Loading chat...</div>
+
+  <script>
+    const API_KEY = 'AIzaSyATsY24GhSlGiypVb-O6EpgBxi4NhDC8zo';
+    const CHANNEL_ID = 'UC5DNw4_nTttXpsNR3r0AeJw';
+
+    async function getLiveChatIdFromChannel(channelId) {
+      const url = `https://www.googleapis.com/youtube/v3/search?part=id&channelId=${channelId}&eventType=live&type=video&key=${API_KEY}`;
+      const res = await fetch(url);
+      const data = await res.json();
+
+      if (data.items && data.items.length > 0) {
+        const videoId = data.items[0].id.videoId;
+        const videoDetailsUrl = `https://www.googleapis.com/youtube/v3/videos?part=liveStreamingDetails&id=${videoId}&key=${API_KEY}`;
+        const videoRes = await fetch(videoDetailsUrl);
+        const videoData = await videoRes.json();
+
+        const liveChatId = videoData.items[0]?.liveStreamingDetails?.activeLiveChatId;
+        return liveChatId;
+      } else {
+        console.warn("No live stream currently found.");
+        return null;
+      }
+    }
+
+    function startChat(LIVE_CHAT_ID) {
+      let nextPageToken = '';
+      const seenMessages = new Set();
+
+      async function fetchChat() {
+        const url = new URL('https://www.googleapis.com/youtube/v3/liveChat/messages');
+        url.searchParams.set('liveChatId', LIVE_CHAT_ID);
+        url.searchParams.set('part', 'snippet,authorDetails');
+        url.searchParams.set('key', API_KEY);
+        if (nextPageToken) url.searchParams.set('pageToken', nextPageToken);
+
+        const response = await fetch(url.toString());
+        const data = await response.json();
+
+        nextPageToken = data.nextPageToken;
+
+        const chatBox = document.getElementById('chat-box');
+
+        if (data.items) {
+          data.items.forEach(msg => {
+            if (seenMessages.has(msg.id)) return;
+            seenMessages.add(msg.id);
+
+            const author = msg.authorDetails.displayName;
+            const text = msg.snippet.displayMessage;
+            const profileImage = msg.authorDetails.profileImageUrl;
+
+            const el = document.createElement('div');
+            el.className = 'yt-chat-message';
+
+            el.innerHTML = `
+              <img class="yt-chat-avatar" src="${profileImage}" alt="${author}">
+              <div class="yt-chat-content">
+                <span class="yt-chat-author">${author}</span>
+                <span class="yt-chat-text">${text}</span>
+              </div>
+            `;
+
+            chatBox.appendChild(el);
+            chatBox.scrollTop = chatBox.scrollHeight;
+          });
+        }
+
+        setTimeout(fetchChat, 3000);
+      }
+
+      fetchChat();
+    }
+
+    // Run everything
+    getLiveChatIdFromChannel(CHANNEL_ID).then(liveChatId => {
+      if (liveChatId) {
+        document.getElementById('chat-box').innerHTML = ''; // Clear "Loading..."
+        startChat(liveChatId);
+      } else {
+        document.getElementById('chat-box').innerHTML = "<i>No live stream currently active.</i>";
+      }
+    });
+  </script>
+</body>
+</html>
