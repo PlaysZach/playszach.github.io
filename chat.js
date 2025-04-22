@@ -1,4 +1,4 @@
-const CLIENT_ID = '95092625670-a95kqduv56orjov64jpbr53r22a9664p.apps.googleusercontent.com';
+const CLIENT_ID = '95092625670-a95kqduv56orjov64jpbr53r22a9664p.apps.googleusercontent.com';  // Replace with your actual OAuth client ID
 const CHANNEL_ID = 'UC5DNw4_nTttXpsNR3r0AeJw';
 const SCOPES = 'https://www.googleapis.com/auth/youtube.readonly';
 
@@ -11,6 +11,7 @@ function getVideoIdFromURL() {
   return urlParams.get('v');
 }
 
+// Load Google OAuth script
 async function loadAuth() {
   return new Promise((resolve) => {
     const script = document.createElement('script');
@@ -20,21 +21,7 @@ async function loadAuth() {
   });
 }
 
-async function authenticate() {
-  await loadAuth();
-
-  tokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: CLIENT_ID,
-    scope: SCOPES,
-    callback: (tokenResponse) => {
-      accessToken = tokenResponse.access_token;
-      init();  // Proceed to chat fetching
-    },
-  });
-
-  tokenClient.requestAccessToken();
-}
-
+// Fetch with auth header
 async function fetchWithAuth(url) {
   const res = await fetch(url, {
     headers: {
@@ -44,18 +31,21 @@ async function fetchWithAuth(url) {
   return res.json();
 }
 
+// Get chat ID
 async function getLiveChatIdFromVideo(videoId) {
   const url = `https://www.googleapis.com/youtube/v3/videos?part=liveStreamingDetails&id=${videoId}`;
   const data = await fetchWithAuth(url);
   return data.items?.[0]?.liveStreamingDetails?.activeLiveChatId || null;
 }
 
+// Get latest live video ID
 async function getLatestPublicLiveVideoId(channelId) {
   const url = `https://www.googleapis.com/youtube/v3/search?part=id&channelId=${channelId}&eventType=live&type=video&order=date&maxResults=1`;
   const data = await fetchWithAuth(url);
   return data.items?.[0]?.id?.videoId || null;
 }
 
+// Display chat
 function startChat(LIVE_CHAT_ID) {
   let nextPageToken = '';
   const seenMessages = new Set();
@@ -116,6 +106,7 @@ function startChat(LIVE_CHAT_ID) {
   fetchChat();
 }
 
+// Chat init
 async function init() {
   const chatBox = document.getElementById('chat-box');
   chatBox.innerHTML = '<i>Loading chat...</i>';
@@ -138,5 +129,24 @@ async function init() {
   }
 }
 
-// Start authentication when page loads
-authenticate();
+// Button-based OAuth trigger
+async function setupAuthButton() {
+  await loadAuth();
+
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: CLIENT_ID,
+    scope: SCOPES,
+    callback: (tokenResponse) => {
+      accessToken = tokenResponse.access_token;
+      document.getElementById('auth-button').style.display = 'none';
+      init();
+    },
+  });
+
+  const btn = document.getElementById('auth-button');
+  btn.addEventListener('click', () => {
+    tokenClient.requestAccessToken();
+  });
+}
+
+setupAuthButton();
