@@ -2,8 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>YouTube Live Chat Wrapper</title>
+  <title>Zach's YouTube Live Chat</title>
   <style>
     html, body {
       margin: 0;
@@ -19,9 +18,26 @@
   </style>
 </head>
 <body>
-  <iframe 
-    src="https://www.youtube.com/live_chat?v=XTOFiNSzT70&embed_domain=playszach.github.io"
-    allowfullscreen>
-  </iframe>
+  <div id="chat-container">Loading chat…</div>
+
+  <script>
+    // Get the video ID from the URL (e.g., ?v=VIDEO_ID)
+    const urlParams = new URLSearchParams(window.location.search);
+    const videoId = urlParams.get('v');
+
+    if (videoId) {
+      const iframe = document.createElement('iframe');
+      iframe.src = `https://www.youtube.com/live_chat?v=${videoId}&embed_domain=playszach.github.io`;
+      iframe.allowFullscreen = true;
+      iframe.style.width = "100%";
+      iframe.style.height = "100%";
+      iframe.style.border = "none";
+
+      document.getElementById('chat-container').innerHTML = '';
+      document.getElementById('chat-container').appendChild(iframe);
+    } else {
+      document.getElementById('chat-container').innerText = 'No video ID provided. Use ?v=VIDEO_ID in the URL.';
+    }
+  </script>
 </body>
 </html>
