@@ -43,28 +43,48 @@ function startChat(LIVE_CHAT_ID) {
     const chatBox = document.getElementById('chat-box');
 
     if (data.items) {
-      data.items.forEach(msg => {
-        if (seenMessages.has(msg.id)) return;
-        seenMessages.add(msg.id);
-
-        const author = msg.authorDetails.displayName;
-        const text = msg.snippet.displayMessage;
-        const profileImage = msg.authorDetails.profileImageUrl;
-
-        const el = document.createElement('div');
-        el.className = 'yt-chat-message';
-
-        el.innerHTML = `
-          <img class="yt-chat-avatar" src="${profileImage}" alt="${author}">
-          <div class="yt-chat-content">
-            <span class="yt-chat-author">${author}</span>
-            <span class="yt-chat-text">${text}</span>
-          </div>
-        `;
-
-        chatBox.appendChild(el);
-        chatBox.scrollTop = chatBox.scrollHeight;
-      });
+        data.items.forEach(msg => {
+            if (seenMessages.has(msg.id)) return;
+            seenMessages.add(msg.id);
+          
+            const author = msg.authorDetails.displayName;
+            const text = msg.snippet.displayMessage;
+            const profileImage = msg.authorDetails.profileImageUrl;
+          
+            const isModerator = msg.authorDetails.isChatModerator;
+            const isOwner = msg.authorDetails.isChatOwner;
+            const isVerified = msg.authorDetails.isVerified;
+          
+            // Default color for regular users
+            let authorColor = '#afafaf';  // Default for regular users
+            let authorStyle = '';  // Style for regular user (no bubble)
+          
+            // For moderators, blue text
+            if (isModerator) {
+              authorColor = '#5e84f1';  // Blue text for moderators
+              authorStyle = '';  // No bubble for moderators
+            }
+          
+            // For owners, black text with a yellow bubble (#ffd600)
+            if (isOwner) {
+              authorColor = '#000';  // Black text for owners
+              authorStyle = `background-color: #ffd600; border-radius: 6px; padding: 3px 6px;`;  // Yellow bubble for owners
+            }
+          
+            const el = document.createElement('div');
+            el.className = 'yt-chat-message';
+          
+            el.innerHTML = `
+              <img class="yt-chat-avatar" src="${profileImage}" alt="${author}">
+              <div class="yt-chat-content-inline">
+                <span class="yt-chat-author" style="color: ${authorColor}; ${authorStyle}">${author}</span>
+                <span class="yt-chat-text">${text}</span>
+              </div>
+            `;
+          
+            chatBox.appendChild(el);
+            chatBox.scrollTop = chatBox.scrollHeight;
+          });              
     }
 
     setTimeout(fetchChat, 3000);
