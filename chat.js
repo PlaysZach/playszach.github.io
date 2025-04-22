@@ -1,19 +1,36 @@
-async function getLiveChatIdFromChannel(channelId) {
-    const url = `https://www.googleapis.com/youtube/v3/search?part=id&channelId=${channelId}&eventType=live&type=video&key=${API_KEY}`;
-    const res = await fetch(url);
-    const data = await res.json();
+async function init() {
+    const chatBox = document.getElementById('chat-box');
+    chatBox.innerHTML = ''; // Always clear the initial message and show the UI
   
-    if (data.items && data.items.length > 0) {
-      const videoId = data.items[0].id.videoId;
-      const videoDetailsUrl = `https://www.googleapis.com/youtube/v3/videos?part=liveStreamingDetails&id=${videoId}&key=${API_KEY}`;
-      const videoRes = await fetch(videoDetailsUrl);
-      const videoData = await videoRes.json();
+    // Show a placeholder message immediately
+    const placeholder = document.createElement('div');
+    placeholder.className = 'yt-chat-message';
+    placeholder.innerHTML = `<span class="yt-chat-text"><i>Waiting for live chat to become available...</i></span>`;
+    chatBox.appendChild(placeholder);
   
-      const liveChatId = videoData.items[0]?.liveStreamingDetails?.activeLiveChatId;
-      return liveChatId;
+    // Step 1: Try to get currently live stream
+    const liveVideoId = await getLatestLivestreamId(CHANNEL_ID, 'live');
+    let chatId = null;
+  
+    if (liveVideoId) {
+      chatId = await getLiveChatIdFromVideo(liveVideoId);
+    }
+  
+    // Step 2: If no live, try upcoming (scheduled)
+    if (!chatId) {
+      const scheduledVideoId = await getLatestLivestreamId(CHANNEL_ID, 'upcoming');
+      if (scheduledVideoId) {
+        chatId = await getLiveChatIdFromVideo(scheduledVideoId);
+      }
+    }
+  
+    if (chatId) {
+      chatBox.innerHTML = ''; // Remove "waiting" message
+      startChat(chatId);
     } else {
-      console.warn("No live stream currently found.");
-      return null;
+      console.log("No live or scheduled chat available yet.");
+      // Leave placeholder message up and optionally retry later
+      setTimeout(init, 15000); // Try again in 15 seconds
     }
   }
   

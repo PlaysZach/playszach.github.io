@@ -28,10 +28,6 @@
       padding: 4px 0;
     }
 
-    .yt-chat-message:hover {
-      background-color: #f9f9f9;
-    }
-
     .yt-chat-avatar {
       width: 32px;
       height: 32px;
@@ -51,7 +47,7 @@
 
     .yt-chat-author {
       font-weight: bold;
-      color: #ffee00;
+      color: #fffb00;
       margin-right: 5px;
     }
 
@@ -134,8 +130,9 @@
 
     async function init() {
       const chatBox = document.getElementById('chat-box');
+      chatBox.innerHTML = ''; // Always clear the initial message and show the UI
 
-      // First: check for active live stream
+      // Step 1: Try to get the live stream first
       const liveVideoId = await getLatestLivestreamId(CHANNEL_ID, 'live');
       let chatId = null;
 
@@ -143,7 +140,7 @@
         chatId = await getLiveChatIdFromVideo(liveVideoId);
       }
 
-      // Fallback: try upcoming (scheduled) livestream
+      // Step 2: If no live stream, get the upcoming scheduled stream
       if (!chatId) {
         const scheduledVideoId = await getLatestLivestreamId(CHANNEL_ID, 'upcoming');
         if (scheduledVideoId) {
@@ -151,15 +148,18 @@
         }
       }
 
+      // If chat ID is found, start the chat
       if (chatId) {
-        chatBox.innerHTML = ''; // Clear loading message
+        chatBox.innerHTML = ''; // Clear "Loading..." message
         startChat(chatId);
       } else {
-        chatBox.innerHTML = "<i>No livestream or upcoming chat available.</i>";
+        chatBox.innerHTML = "<i>No live or scheduled chat available at this time.</i>";
       }
     }
 
+    // Run the initialization
     init();
   </script>
+
 </body>
 </html>
