@@ -2,18 +2,30 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Zach's YouTube Live Chat</title>
+  <title>Zach's Live Chat</title>
   <style>
     html, body {
       margin: 0;
       padding: 0;
       height: 100%;
+      width: 100%;
       overflow: hidden;
+      box-sizing: border-box;
     }
+
+    #chat-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+
     iframe {
       width: 100%;
       height: 100%;
       border: none;
+      display: block;
     }
   </style>
 </head>
@@ -21,7 +33,6 @@
   <div id="chat-container">Loading chat…</div>
 
   <script>
-    // Get the video ID from the URL (e.g., ?v=VIDEO_ID)
     const urlParams = new URLSearchParams(window.location.search);
     const videoId = urlParams.get('v');
 
@@ -36,7 +47,7 @@
       document.getElementById('chat-container').innerHTML = '';
       document.getElementById('chat-container').appendChild(iframe);
     } else {
-      document.getElementById('chat-container').innerText = 'No video ID provided. Use ?v=VIDEO_ID in the URL.';
+      document.getElementById('chat-container').innerText = 'No video ID provided, use ?v=VIDEO_ID at the end of the URL eg. https://playszach.github.io/chat/?v=jfKfPfyJRdk';
     }
   </script>
 </body>
