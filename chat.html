@@ -18,42 +18,42 @@
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
-      padding: 20px;  /* Increased padding */
+      padding: 20px;
       box-sizing: border-box;
       background: transparent;
     }
   
     .yt-chat-message {
       display: flex;
-      align-items: flex-start;
-      margin-bottom: 12px;  /* Increased margin between messages */
+      align-items: flex-start; /* align to top of avatar */
+      margin-bottom: 16px;
     }
   
     .yt-chat-avatar {
-      width: 40px;  /* Increased profile picture size */
-      height: 40px;  /* Increased profile picture size */
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
-      margin-right: 12px;  /* Increased space between avatar and text */
+      margin-right: 12px;
     }
   
     .yt-chat-content-inline {
       display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 12px;  /* Increased gap between username and message */
+      flex-direction: column; /* stack name + message vertically */
     }
   
     .yt-chat-author {
       font-weight: bold;
-      font-size: 22px;  /* Increased font size for author */
-      padding: 6px 12px;  /* Increased padding for the author bubble */
-      border-radius: 8px;  /* Slightly larger rounded corners */
+      font-size: 22px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      line-height: 1.2;
+      margin-bottom: 4px; /* space between name and message */
     }
   
     .yt-chat-text {
       color: white;
-      font-size: 18px;  /* Increased font size for text */
-      margin-left: 4px;  /* Increased space between text and author */
+      font-size: 18px;
+      line-height: 1.4;
     }
   </style>
 </head>
