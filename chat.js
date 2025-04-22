@@ -1,28 +1,39 @@
-const API_KEY = 'AIzaSyATsY24GhSlGiypVb-O6EpgBxi4NhDC8zo';
-const CHANNEL_ID = 'UC5DNw4_nTttXpsNR3r0AeJw';  // Replace with YouTube channel's ID
+const API_KEY = 'AIzaSyATsY24GhSlGiypVb-O6EpgBxi4NhDC8zo'; // Replace with your YouTube API key
+const CHANNEL_ID = 'UC5DNw4_nTttXpsNR3r0AeJw'; // Replace with your YouTube channel ID
 
-// Function to get the latest live stream or upcoming stream
-async function getLatestLivestreamId(channelId, eventType) {
-  const url = `https://www.googleapis.com/youtube/v3/search?part=id&channelId=${channelId}&eventType=${eventType}&type=video&order=date&maxResults=1&key=${API_KEY}`;
+// Get the latest video (either live or scheduled)
+async function getLatestStreamVideoId() {
+  const url = `https://www.googleapis.com/youtube/v3/search?part=id&channelId=${CHANNEL_ID}&eventType=upcoming&type=video&order=date&maxResults=1&key=${API_KEY}`;
   const res = await fetch(url);
   const data = await res.json();
   return data.items?.[0]?.id?.videoId || null;
 }
 
-// Function to get the live chat ID from the video
-async function getLiveChatIdFromVideo(videoId) {
-  const videoDetailsUrl = `https://www.googleapis.com/youtube/v3/videos?part=liveStreamingDetails&id=${videoId}&key=${API_KEY}`;
-  const res = await fetch(videoDetailsUrl);
-  const data = await res.json();
-  
-  // Check if live streaming details exist
-  if (data.items && data.items[0].liveStreamingDetails) {
-    return data.items[0].liveStreamingDetails.activeLiveChatId || null;
+// Try both live and scheduled to get the first video with activeLiveChatId
+async function getFirstChatCapableVideoId() {
+  const eventTypes = ['live', 'upcoming'];
+  for (const type of eventTypes) {
+    const url = `https://www.googleapis.com/youtube/v3/search?part=id&channelId=${CHANNEL_ID}&eventType=${type}&type=video&order=date&maxResults=1&key=${API_KEY}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    const videoId = data.items?.[0]?.id?.videoId;
+    if (videoId) {
+      const chatId = await getLiveChatIdFromVideo(videoId);
+      if (chatId) return chatId;
+    }
   }
   return null;
 }
 
-// Function to start fetching chat messages
+// Get the activeLiveChatId from the video details
+async function getLiveChatIdFromVideo(videoId) {
+  const url = `https://www.googleapis.com/youtube/v3/videos?part=liveStreamingDetails&id=${videoId}&key=${API_KEY}`;
+  const res = await fetch(url);
+  const data = await res.json();
+  return data.items?.[0]?.liveStreamingDetails?.activeLiveChatId || null;
+}
+
+// Start displaying chat
 function startChat(LIVE_CHAT_ID) {
   let nextPageToken = '';
   const seenMessages = new Set();
@@ -66,42 +77,25 @@ function startChat(LIVE_CHAT_ID) {
       });
     }
 
-    setTimeout(fetchChat, 3000); // Continue fetching every 3 seconds
+    setTimeout(fetchChat, 3000);
   }
 
   fetchChat();
 }
 
-// Initialize the chat fetching process
+// Initialize
 async function init() {
   const chatBox = document.getElementById('chat-box');
-  chatBox.innerHTML = '<i>Loading chat...</i>'; // Show loading message
+  chatBox.innerHTML = '<i>Loading chat...</i>';
 
-  // Step 1: Try to get the live stream first
-  const liveVideoId = await getLatestLivestreamId(CHANNEL_ID, 'live');
-  let chatId = null;
+  const chatId = await getFirstChatCapableVideoId();
 
-  if (liveVideoId) {
-    chatId = await getLiveChatIdFromVideo(liveVideoId);
-  }
-
-  // Step 2: If no live stream, get the upcoming scheduled stream
-  if (!chatId) {
-    const scheduledVideoId = await getLatestLivestreamId(CHANNEL_ID, 'upcoming');
-    if (scheduledVideoId) {
-      // Here, even if the stream is not live yet, we still attempt to get the chat ID
-      chatId = await getLiveChatIdFromVideo(scheduledVideoId);
-    }
-  }
-
-  // If chat ID is found, start the chat
   if (chatId) {
-    chatBox.innerHTML = ''; // Clear loading message
+    chatBox.innerHTML = '';
     startChat(chatId);
   } else {
-    chatBox.innerHTML = "<i>No live or scheduled chat available at this time.</i>";
+    chatBox.innerHTML = "<i>No stream with active chat found.</i>";
   }
 }
 
-// Run the initialization when the page loads
 init();
