@@ -1,7 +1,7 @@
 <div id="chat-box" style="font-family: sans-serif; font-size: 14px; max-height: 400px; overflow-y: scroll; padding: 10px;"></div>
 
 <script>
-  const API_KEY = 'AIzaSyATsY24GhSlGiypVb-O6EpgBxi4NhDC8zo';
+  const API_KEY = 'YOUR_API_KEY';
   const LIVE_CHAT_ID = 'Cg0KC2lVZHhNRTkyTFVRKicKGFVDNUROdzRfblR0dFhwc05SM3IwQWVKdxILaVVkeE1FOTJMVVE';
   let nextPageToken = '';
   const seenMessages = new Set();
@@ -22,21 +22,43 @@
 
     if (data.items) {
       data.items.forEach(msg => {
-        if (seenMessages.has(msg.id)) return; // avoid duplicate messages
+        if (seenMessages.has(msg.id)) return; // avoid duplicates
         seenMessages.add(msg.id);
 
         const author = msg.authorDetails.displayName;
         const text = msg.snippet.displayMessage;
+        const profileImage = msg.authorDetails.profileImageUrl; // Profile picture URL
+
         const el = document.createElement('div');
-        el.textContent = `${author}: ${text}`;
+        el.style.display = 'flex';
+        el.style.alignItems = 'center';
+        el.style.marginBottom = '5px'; // Space between messages
+
+        // Create image element
+        const img = document.createElement('img');
+        img.src = profileImage;
+        img.alt = author;
+        img.style.width = '30px'; // Set size for the image
+        img.style.height = '30px';
+        img.style.borderRadius = '50%'; // Make it circular
+        img.style.marginRight = '10px'; // Space between image and text
+
+        // Create text element
+        const textEl = document.createElement('span');
+        textEl.textContent = `${author}: ${text}`;
+
+        // Append image and text to the message div
+        el.appendChild(img);
+        el.appendChild(textEl);
+
         chatBox.appendChild(el);
 
-        // scroll to bottom
+        // Optional: scroll to bottom
         chatBox.scrollTop = chatBox.scrollHeight;
       });
     }
 
-    setTimeout(fetchChat, 3000); // update chat
+    setTimeout(fetchChat, 3000); // poll again
   }
 
   fetchChat();
