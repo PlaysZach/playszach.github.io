@@ -1,0 +1,28 @@
+<div id="chat-box" style="font-family: sans-serif; font-size: 14px; max-height: 400px; overflow-y: scroll;"></div>
+
+<script>
+  const API_KEY = 'AIzaSyATsY24GhSlGiypVb-O6EpgBxi4NhDC8zo';
+  const LIVE_CHAT_ID = 'Cg0KC2lVZHhNRTkyTFVRKicKGFVDNUROdzRfblR0dFhwc05SM3IwQWVKdxILaVVkeE1FOTJMVVE';
+
+  async function fetchChat() {
+    const response = await fetch(`https://www.googleapis.com/youtube/v3/liveChat/messages?liveChatId=${LIVE_CHAT_ID}&part=snippet,authorDetails&key=${API_KEY}`);
+    const data = await response.json();
+
+    const chatBox = document.getElementById('chat-box');
+    chatBox.innerHTML = '';
+
+    if (data.items) {
+      data.items.forEach(msg => {
+        const author = msg.authorDetails.displayName;
+        const text = msg.snippet.displayMessage;
+        const el = document.createElement('div');
+        el.textContent = `${author}: ${text}`;
+        chatBox.appendChild(el);
+      });
+    }
+
+    setTimeout(fetchChat, 3000); // poll every 3 seconds
+  }
+
+  fetchChat();
+</script>
