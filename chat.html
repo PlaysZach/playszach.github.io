@@ -4,58 +4,66 @@
   <meta charset="UTF-8" />
   <title>YouTube Chat Viewer</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
-
   <style>
     body {
       margin: 0;
       padding: 0;
-      font-family: "Roboto", Arial, sans-serif;
+      background: transparent;
+      font-family: Arial, sans-serif;
     }
-
+  
     #chat-box {
-      font-size: 13px;
-      max-height: 500px;
+      position: relative;
+      height: 100vh;
       overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
       padding: 10px;
-      background-color: #fff;
-      color: #000;
+      box-sizing: border-box;
+      background: transparent;
     }
-
+  
     .yt-chat-message {
       display: flex;
       align-items: flex-start;
-      margin-bottom: 10px;
-      padding: 4px 0;
+      margin-bottom: 8px;
     }
-
+  
     .yt-chat-avatar {
-      width: 32px;
-      height: 32px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
-      margin-right: 10px;
-      flex-shrink: 0;
+      margin-right: 8px;
     }
-
+  
     .yt-chat-content {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      flex-wrap: wrap;
-      max-width: calc(100% - 42px);
-      word-break: break-word;
+      display: inline-flex;
+      flex-direction: column;
+      max-width: 80%;
     }
-
+  
     .yt-chat-author {
-      font-weight: bold;
-      color: #ffe600;
-      margin-right: 5px;
-    }
-
-    .yt-chat-text {
-      line-height: 1.4;
+      background-color: #ffd600;
       color: #000;
+      font-weight: bold;
+      border-radius: 12px;
+      padding: 4px 8px;
+      display: inline-block;
+      margin-bottom: 2px;
+      font-size: 13px;
     }
-  </style>
+  
+    .yt-chat-text {
+      color: white;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 6px 10px;
+      border-radius: 12px;
+      font-size: 14px;
+      max-width: 100%;
+      word-wrap: break-word;
+    }
+  </style>  
 </head>
 <body>
 
