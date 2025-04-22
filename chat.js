@@ -1,31 +1,13 @@
-const API_KEY = 'AIzaSyATsY24GhSlGiypVb-O6EpgBxi4NhDC8zo'; // Replace with your YouTube API key
-const CHANNEL_ID = 'UC5DNw4_nTttXpsNR3r0AeJw'; // Replace with your YouTube channel ID
+const API_KEY = 'AIzaSyATsY24GhSlGiypVb-O6EpgBxi4NhDC8zo';
+const CHANNEL_ID = 'UC5DNw4_nTttXpsNR3r0AeJw';
 
-// Get the latest video (either live or scheduled)
-async function getLatestStreamVideoId() {
-  const url = `https://www.googleapis.com/youtube/v3/search?part=id&channelId=${CHANNEL_ID}&eventType=upcoming&type=video&order=date&maxResults=1&key=${API_KEY}`;
-  const res = await fetch(url);
-  const data = await res.json();
-  return data.items?.[0]?.id?.videoId || null;
+// Get query param from URL
+function getVideoIdFromURL() {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get('v');
 }
 
-// Try both live and scheduled to get the first video with activeLiveChatId
-async function getFirstChatCapableVideoId() {
-  const eventTypes = ['live', 'upcoming'];
-  for (const type of eventTypes) {
-    const url = `https://www.googleapis.com/youtube/v3/search?part=id&channelId=${CHANNEL_ID}&eventType=${type}&type=video&order=date&maxResults=1&key=${API_KEY}`;
-    const res = await fetch(url);
-    const data = await res.json();
-    const videoId = data.items?.[0]?.id?.videoId;
-    if (videoId) {
-      const chatId = await getLiveChatIdFromVideo(videoId);
-      if (chatId) return chatId;
-    }
-  }
-  return null;
-}
-
-// Get the activeLiveChatId from the video details
+// Get the active live chat ID from a specific video
 async function getLiveChatIdFromVideo(videoId) {
   const url = `https://www.googleapis.com/youtube/v3/videos?part=liveStreamingDetails&id=${videoId}&key=${API_KEY}`;
   const res = await fetch(url);
@@ -33,7 +15,15 @@ async function getLiveChatIdFromVideo(videoId) {
   return data.items?.[0]?.liveStreamingDetails?.activeLiveChatId || null;
 }
 
-// Start displaying chat
+// Search for latest public live stream
+async function getLatestPublicLiveVideoId(channelId) {
+  const url = `https://www.googleapis.com/youtube/v3/search?part=id&channelId=${channelId}&eventType=live&type=video&order=date&maxResults=1&key=${API_KEY}`;
+  const res = await fetch(url);
+  const data = await res.json();
+  return data.items?.[0]?.id?.videoId || null;
+}
+
+// Start pulling chat
 function startChat(LIVE_CHAT_ID) {
   let nextPageToken = '';
   const seenMessages = new Set();
@@ -88,13 +78,26 @@ async function init() {
   const chatBox = document.getElementById('chat-box');
   chatBox.innerHTML = '<i>Loading chat...</i>';
 
-  const chatId = await getFirstChatCapableVideoId();
+  const videoIdFromUrl = getVideoIdFromURL();
+  let videoId = videoIdFromUrl;
+
+  // If no ID passed in the URL, try to get the latest public live video
+  if (!videoId) {
+    videoId = await getLatestPublicLiveVideoId(CHANNEL_ID);
+  }
+
+  if (!videoId) {
+    chatBox.innerHTML = '<i>No live video found.</i>';
+    return;
+  }
+
+  const chatId = await getLiveChatIdFromVideo(videoId);
 
   if (chatId) {
     chatBox.innerHTML = '';
     startChat(chatId);
   } else {
-    chatBox.innerHTML = "<i>No stream with active chat found.</i>";
+    chatBox.innerHTML = '<i>No live chat available for this video.</i>';
   }
 }
 
