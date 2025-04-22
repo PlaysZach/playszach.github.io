@@ -42,19 +42,20 @@
     
         .yt-chat-content {
           display: flex;
-          flex-direction: column;
-          max-width: calc(100% - 42px);
-          word-break: break-word;
+          flex-direction: row;
+          align-items: center;
+          flex-wrap: wrap;
         }
     
         .yt-chat-author {
           font-weight: bold;
-          color: #065fd4;
-          margin-bottom: 2px;
+          color: #ffee00;
+          margin-bottom: 5px;
         }
     
         .yt-chat-text {
           line-height: 1.4;
+          color: #000;
         }
       </style>
     </head>
@@ -64,9 +65,20 @@
     
       <script>
         const API_KEY = 'AIzaSyATsY24GhSlGiypVb-O6EpgBxi4NhDC8zo';
-        const LIVE_CHAT_ID = 'Cg0KC2lVZHhNRTkyTFVRKicKGFVDNUROdzRfblR0dFhwc05SM3IwQWVKdxILaVVkeE1FOTJMVVE';
-        let nextPageToken = '';
-        const seenMessages = new Set();
+
+        const CHANNEL_ID = 'UC5DNw4_nTttXpsNR3r0AeJw';
+
+        getLiveChatIdFromChannel(CHANNEL_ID).then(liveChatId => {
+             if (liveChatId) {
+               startChat(liveChatId);
+                 } else {
+                         document.getElementById('chat-box').innerHTML = "<i>No live stream currently active.</i>";
+                         }
+                              });
+
+        function startChat(LIVE_CHAT_ID) {
+            let nextPageToken = '';
+            const seenMessages = new Set();
     
         async function fetchChat() {
           const url = new URL('https://www.googleapis.com/youtube/v3/liveChat/messages');
@@ -111,7 +123,7 @@
         }
     
         fetchChat();
+    }
       </script>
     </body>
     </html>
-    
