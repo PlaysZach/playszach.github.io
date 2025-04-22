@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>PlaysZach's Chat</title>
+  <title>YouTube Chat Viewer</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
 
   <style>
@@ -69,23 +69,18 @@
     const API_KEY = 'AIzaSyATsY24GhSlGiypVb-O6EpgBxi4NhDC8zo';
     const CHANNEL_ID = 'UC5DNw4_nTttXpsNR3r0AeJw';
 
-    async function getLiveChatIdFromChannel(channelId) {
-      const url = `https://www.googleapis.com/youtube/v3/search?part=id&channelId=${channelId}&eventType=live&type=video&key=${API_KEY}`;
+    async function getLatestLivestreamId(channelId, eventType) {
+      const url = `https://www.googleapis.com/youtube/v3/search?part=id&channelId=${channelId}&eventType=${eventType}&type=video&order=date&maxResults=1&key=${API_KEY}`;
       const res = await fetch(url);
       const data = await res.json();
+      return data.items?.[0]?.id?.videoId || null;
+    }
 
-      if (data.items && data.items.length > 0) {
-        const videoId = data.items[0].id.videoId;
-        const videoDetailsUrl = `https://www.googleapis.com/youtube/v3/videos?part=liveStreamingDetails&id=${videoId}&key=${API_KEY}`;
-        const videoRes = await fetch(videoDetailsUrl);
-        const videoData = await videoRes.json();
-
-        const liveChatId = videoData.items[0]?.liveStreamingDetails?.activeLiveChatId;
-        return liveChatId;
-      } else {
-        console.warn("No live stream currently found.");
-        return null;
-      }
+    async function getLiveChatIdFromVideo(videoId) {
+      const videoDetailsUrl = `https://www.googleapis.com/youtube/v3/videos?part=liveStreamingDetails&id=${videoId}&key=${API_KEY}`;
+      const res = await fetch(videoDetailsUrl);
+      const data = await res.json();
+      return data.items?.[0]?.liveStreamingDetails?.activeLiveChatId || null;
     }
 
     function startChat(LIVE_CHAT_ID) {
@@ -137,15 +132,34 @@
       fetchChat();
     }
 
-    // Run everything
-    getLiveChatIdFromChannel(CHANNEL_ID).then(liveChatId => {
-      if (liveChatId) {
-        document.getElementById('chat-box').innerHTML = ''; // Clear "Loading..."
-        startChat(liveChatId);
-      } else {
-        document.getElementById('chat-box').innerHTML = "<i>No live stream currently active.</i>";
+    async function init() {
+      const chatBox = document.getElementById('chat-box');
+
+      // First: check for active live stream
+      const liveVideoId = await getLatestLivestreamId(CHANNEL_ID, 'live');
+      let chatId = null;
+
+      if (liveVideoId) {
+        chatId = await getLiveChatIdFromVideo(liveVideoId);
       }
-    });
+
+      // Fallback: try upcoming (scheduled) livestream
+      if (!chatId) {
+        const scheduledVideoId = await getLatestLivestreamId(CHANNEL_ID, 'upcoming');
+        if (scheduledVideoId) {
+          chatId = await getLiveChatIdFromVideo(scheduledVideoId);
+        }
+      }
+
+      if (chatId) {
+        chatBox.innerHTML = ''; // Clear loading message
+        startChat(chatId);
+      } else {
+        chatBox.innerHTML = "<i>No livestream or upcoming chat available.</i>";
+      }
+    }
+
+    init();
   </script>
 </body>
 </html>
