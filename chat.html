@@ -2,80 +2,26 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>YouTube Chat Viewer</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YouTube Live Chat Wrapper</title>
   <style>
-    body {
+    html, body {
       margin: 0;
       padding: 0;
-      background: transparent;
-      font-family: Arial, sans-serif;
+      height: 100%;
+      overflow: hidden;
     }
-  
-    #chat-box {
-      height: 100vh;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      padding: 20px;  /* Increased padding */
-      box-sizing: border-box;
-      background: transparent;
-    }
-  
-    .yt-chat-message {
-      display: flex;
-      align-items: flex-start;
-      margin-bottom: 12px;  /* Increased margin between messages */
-    }
-  
-    .yt-chat-avatar {
-      width: 40px;  /* Increased profile picture size */
-      height: 40px;  /* Increased profile picture size */
-      border-radius: 50%;
-      margin-right: 12px;  /* Increased space between avatar and text */
-    }
-  
-    .yt-chat-content-inline {
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 12px;  /* Increased gap between username and message */
-    }
-  
-    .yt-chat-author {
-      font-weight: bold;
-      font-size: 22px;  /* Increased font size for author */
-      padding: 6px 12px;  /* Increased padding for the author bubble */
-      border-radius: 8px;  /* Slightly larger rounded corners */
-    }
-  
-    .yt-chat-text {
-      color: white;
-      font-size: 18px;  /* Increased font size for text */
-      margin-left: 4px;  /* Increased space between text and author */
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
     }
   </style>
 </head>
 <body>
-
-    <button id="auth-button" style="
-    font-size: 16px;
-    padding: 10px 20px;
-    margin: 20px;
-    border-radius: 8px;
-    border: none;
-    background: #4285f4;
-    color: white;
-    cursor: pointer;
-  ">
-    Sign in with Google to view chat
-  </button>  
-
-  <div id="chat-box">Loading chat...</div>
-  
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <script src="chat.js"></script>
-
+  <iframe 
+    src="https://www.youtube.com/live_chat?v=XTOFiNSzT70&embed_domain=localhost:8000"
+    allowfullscreen>
+  </iframe>
 </body>
 </html>
