@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@900&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlaysZach</title>
+    <style>
+        body {
+            background-color: #ea3d3e;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+          .social-links {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            gap: 15px;
+        }
+        
+        .social-links a {
+            display: inline-block;
+            transition: transform 0.3s;
+        }
+        
+        .social-links a:hover {
+            transform: scale(1.1);
+        }
+        
+        .social-links img {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .header {
+            padding: 100px 0 40px 0;
+            width: 100%;
+        }
+        
+        h1 {
+            font-size: 6em;
+            font-family: 'Roboto', sans-serif;
+            font-weight: 700;
+            margin: 0;
+        }
+        
+        .video-container {
+            margin: 40px auto;
+            width: 80%;
+            max-width: 800px;
+        }
+        
+        .video-wrapper {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            background: #000;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+        }
+        
+        .video-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .loading {
+            font-size: 1.2em;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="social-links">
+        <a href="https://dsc.gg/PlaysZach" target="_blank">
+            <img src="discord.png" alt="Discord">
+        </a>
+        <a href="https://youtube.com/@PlaysZach" target="_blank">
+            <img src="youtube.png" alt="YouTube">
+        </a>
+    </div>
+
+    <div class="header">
+        <h1>PlaysZach</h1>
+    </div>
+    
+    <div class="video-container">
+        <div id="latest-video">
+            <div class="video-wrapper">
+                <iframe src="" frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowfullscreen></iframe>
+            </div>
+            <p class="loading">Loading latest video...</p>
+        </div>
+    </div>
+
+    <script>
+        const channelId = 'UC5DNw4_nTttXpsNR3r0AeJw';
+        
+        async function fetchLatestVideo() {
+            try {
+                const proxyUrl = 'https://api.allorigins.win/get?url=';
+                const rssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
+                
+                const response = await fetch(`${proxyUrl}${encodeURIComponent(rssUrl)}`);
+                const data = await response.json();
+                
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(data.contents, "text/xml");
+                
+                const firstVideo = xmlDoc.getElementsByTagName("entry")[0];
+                const videoId = firstVideo.getElementsByTagName("yt:videoId")[0].textContent;
+                const videoTitle = firstVideo.getElementsByTagName("title")[0].textContent;
+                
+                const iframe = document.querySelector('.video-wrapper iframe');
+                iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=0&rel=0`;
+                
+                document.querySelector('.loading').style.display = 'none';
+                
+            } catch (error) {
+                console.error('Error fetching latest video:', error);
+                document.querySelector('.loading').textContent = 
+                    'Could not load latest video.';
+            }
+        }
+        fetchLatestVideo();
+    </script>
+</body>
+</html>
